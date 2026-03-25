@@ -1,0 +1,13 @@
+.DS_Store
+.venv/
+__pycache__/
+*.pyc
+*.log
+.pytest_cache/
+node_modules/
+
+# Private local data
+database/
+
+# Local docs
+docs/

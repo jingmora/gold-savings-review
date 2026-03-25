@@ -1,0 +1,16 @@
+#!/bin/zsh
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+APP_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_ROOT="$(cd "$APP_DIR/.." && pwd)"
+LAUNCHER_PATH="$PROJECT_ROOT/start.command"
+ITERM_APP="/Applications/iTerm.app"
+
+if [[ ! -d "$ITERM_APP" ]]; then
+  osascript -e 'display dialog "未找到 /Applications/iTerm.app" buttons {"确定"} default button 1 with icon caution'
+  exit 1
+fi
+
+open -a "$ITERM_APP" "$LAUNCHER_PATH"

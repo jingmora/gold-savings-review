@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>积存金复盘台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="hero-bar">
+          <div class="hero-copy">
+            <p class="eyebrow">交易复盘工作台</p>
+            <h1>积存金复盘台</h1>
+            <p class="subtitle">
+              把交易截图整理成可复盘、可入库、可继续追踪的结果
+            </p>
+          </div>
+          <div class="hero-tools">
+            <button id="open-history" type="button" class="secondary">历史库</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel upload-panel">
+        <div class="section-head">
+          <div>
+            <p class="section-tag">01</p>
+            <h2>导入截图</h2>
+          </div>
+        </div>
+
+        <div class="workflow-layout">
+          <article class="stage-card upload-card">
+            <input id="image-input" type="file" accept="image/*" multiple hidden />
+            <div class="image-dropzone" id="image-dropzone" tabindex="0" role="button" aria-label="拖拽或点击上传截图">
+              <p class="dropzone-title">拖入截图后开始识别</p>
+              <p class="dropzone-subtitle">支持批量导入和直接粘贴截图</p>
+            </div>
+            <div class="ocr-actions">
+              <button id="recognize-image" type="button">开始识别</button>
+              <button id="clear-image" type="button" class="secondary">清空队列</button>
+            </div>
+            <div class="ocr-status is-hidden" id="ocr-status" aria-live="polite"></div>
+
+            <div class="queue-metrics">
+              <article class="metric-card">
+                <span>队列图片</span>
+                <strong id="queue-total-images">0</strong>
+              </article>
+              <article class="metric-card">
+                <span>已完成识别</span>
+                <strong id="queue-done-images">0</strong>
+              </article>
+              <article class="metric-card">
+                <span>已提取成交</span>
+                <strong id="queue-extracted-rows">0</strong>
+              </article>
+            </div>
+          </article>
+
+          <article class="stage-card queue-card">
+            <div class="card-head">
+              <div>
+                <h3>截图队列</h3>
+              </div>
+            </div>
+            <div class="image-preview is-empty" id="image-preview">暂无截图</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel details-panel">
+        <div class="section-head">
+          <div>
+            <p class="section-tag">02</p>
+            <h2>成交明细</h2>
+          </div>
+          <div class="detail-toolbar">
+            <label class="detail-filter-toggle">
+              <input id="detail-only-anomalies" type="checkbox" />
+              <span>只看异常</span>
+            </label>
+            <div class="mode-switch detail-view-switch" role="tablist" aria-label="成交明细视图">
+              <button id="detail-view-flat" type="button" class="mode-button active">按明细</button>
+              <button id="detail-view-by-image" type="button" class="mode-button">按截图</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="output-layout">
+          <article class="stage-card output-card">
+            <div class="table-wrap detail-table-wrap">
+              <table class="review-table detail-table">
+                <colgroup>
+                  <col class="detail-col-index" />
+                  <col class="detail-col-time" />
+                  <col class="detail-col-direction" />
+                  <col class="detail-col-weight" />
+                  <col class="detail-col-price" />
+                  <col class="detail-col-amount" />
+                  <col class="detail-col-action" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>序号</th>
+                    <th>
+                      <button id="detail-sort-time" type="button" class="sort-header-button">
+                        <span>成交时间</span>
+                        <span id="detail-sort-indicator-time" class="sort-indicator">▼</span>
+                      </button>
+                    </th>
+                    <th>委托方向</th>
+                    <th>
+                      <button id="detail-sort-weight" type="button" class="sort-header-button">
+                        <span>克重(g)</span>
+                        <span id="detail-sort-indicator-weight" class="sort-indicator">▲</span>
+                      </button>
+                    </th>
+                    <th>
+                      <button id="detail-sort-price" type="button" class="sort-header-button">
+                        <span>单价(元/g)</span>
+                        <span id="detail-sort-indicator-price" class="sort-indicator">▲</span>
+                      </button>
+                    </th>
+                    <th id="parsed-amount-head">成交金额(元)</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="parsed-sheet-body"></tbody>
+                <tfoot id="parsed-sheet-foot"></tfoot>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel results">
+        <div class="section-head">
+          <div>
+            <p class="section-tag">03</p>
+            <h2>结果总览</h2>
+          </div>
+          <div class="results-meta">
+            <button id="save-batch" type="button">保存为批次</button>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <article class="summary-group-card">
+            <p class="summary-card-title">委托买入概览</p>
+            <div class="summary-group-main">
+              <span>成交均价</span>
+              <strong id="summary-buy-avg">¥0.00/g</strong>
+            </div>
+            <div class="summary-group-meta">
+              <article class="summary-mini-card">
+                <span>成交克重</span>
+                <strong id="summary-buy-weight">0.000 g</strong>
+              </article>
+              <article class="summary-mini-card">
+                <span>成交金额</span>
+                <strong id="summary-buy-amount">¥0.00</strong>
+              </article>
+            </div>
+          </article>
+
+          <article class="summary-group-card">
+            <p class="summary-card-title">委托卖出概览</p>
+            <div class="summary-group-main">
+              <span>成交均价</span>
+              <strong id="summary-sell-avg">¥0.00/g</strong>
+            </div>
+            <div class="summary-group-meta">
+              <article class="summary-mini-card">
+                <span>成交克重</span>
+                <strong id="summary-sell-weight">0.000 g</strong>
+              </article>
+              <article class="summary-mini-card">
+                <span>成交金额</span>
+                <strong id="summary-sell-amount">¥0.00</strong>
+              </article>
+            </div>
+          </article>
+        </div>
+
+        <div class="analysis-block">
+          <div class="appendix-head">
+            <div>
+              <h3>成交数据分析</h3>
+            </div>
+          </div>
+
+          <div class="chart-grid">
+            <article class="chart-card">
+              <div class="chart-head">
+                <h4>买入成交克重（日度）</h4>
+              </div>
+              <div class="chart-shell">
+                <canvas id="chart-amount"></canvas>
+                <p class="chart-empty">暂无图表数据</p>
+              </div>
+            </article>
+
+            <article class="chart-card">
+              <div class="chart-head">
+                <h4>成交均价（日度）</h4>
+              </div>
+              <div class="chart-shell">
+                <canvas id="chart-average"></canvas>
+                <p class="chart-empty">暂无图表数据</p>
+              </div>
+            </article>
+
+            <article class="chart-card">
+              <div class="chart-head">
+                <h4>卖出成交克重（日度）</h4>
+              </div>
+              <div class="chart-shell">
+                <canvas id="chart-weight"></canvas>
+                <p class="chart-empty">暂无图表数据</p>
+              </div>
+            </article>
+
+            <article class="chart-card">
+              <div class="chart-head">
+                <h4>价格带成交分布</h4>
+              </div>
+              <div class="chart-shell">
+                <canvas id="chart-distribution"></canvas>
+                <p class="chart-empty">暂无图表数据</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="appendix-block">
+          <div class="appendix-head">
+            <div>
+              <h3>按成交日期复盘</h3>
+            </div>
+            <p class="hint">按成交日期查看委托买卖与净增持克重</p>
+          </div>
+
+          <div class="table-wrap appendix-table-wrap">
+            <table class="review-table">
+              <thead>
+                <tr>
+                  <th>成交日期</th>
+                  <th>委托买入克重(g)</th>
+                  <th>委托卖出克重(g)</th>
+                  <th>净增持克重(g)</th>
+                </tr>
+              </thead>
+              <tbody id="review-sheet-body"></tbody>
+              <tfoot id="review-sheet-foot"></tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <input id="import-batch-file" type="file" accept="application/json,.json" hidden />
+
+    <div class="history-drawer is-hidden" id="history-drawer" aria-hidden="true">
+      <button class="history-backdrop" type="button" data-action="close-history" aria-label="关闭历史库"></button>
+      <section class="history-panel" role="dialog" aria-modal="true" aria-label="投资历史库">
+        <div class="history-panel-head">
+          <div>
+            <p class="section-kicker">投资历史库</p>
+            <h2>历史批次与数据管理</h2>
+            <p class="hint">先保存当前整理台，再从历史库继续整理；JSON 仍用于完整备份与恢复。</p>
+          </div>
+          <div class="history-panel-actions">
+            <button id="new-batch" type="button" class="secondary">新建整理台</button>
+            <button id="close-history" type="button" class="secondary" data-action="close-history">关闭</button>
+          </div>
+        </div>
+
+        <div class="history-layout">
+          <article class="stage-card history-current-card">
+            <div class="card-head">
+              <div>
+                <p class="card-tag">当前整理台</p>
+                <h3 id="workspace-title">空白整理台</h3>
+              </div>
+            </div>
+            <p class="hint" id="batch-meta-copy">未保存</p>
+            <p class="history-current-copy" id="workspace-record-copy">从截图识别、核对明细，到这里查看本次结果。</p>
+            <div class="history-current-actions">
+              <button id="workspace-save-batch" type="button">保存到历史库</button>
+              <button id="workspace-save-as-batch" type="button" class="secondary">另存为新批次</button>
+            </div>
+          </article>
+
+          <article class="stage-card history-library-card">
+            <div class="card-head">
+              <div>
+                <h3>历史批次</h3>
+                <p class="hint">优先从当前整理台保存，再从历史库继续整理；合并只作为补充动作。</p>
+              </div>
+            </div>
+            <div class="batch-library is-empty" id="batch-library">暂无历史统计批次</div>
+          </article>
+
+          <article class="stage-card history-data-card">
+            <div class="card-head">
+              <div>
+                <h3>数据管理</h3>
+              </div>
+            </div>
+            <p class="hint">用于备份与恢复历史批次。清理浏览器数据前，建议先导出一次 JSON 备份。</p>
+            <div class="history-data-actions">
+              <button id="export-batches" type="button" class="secondary">导出批次数据</button>
+              <button id="import-batches" type="button" class="secondary">导入批次数据</button>
+            </div>
+            <div class="history-format-note">
+              <span>批次数据格式</span>
+              <strong>JSON</strong>
+              <p>保留批次 id、名称、创建时间、更新时间、rows 与 summary，优先用于完整恢复历史。</p>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <div class="lightbox is-hidden" id="image-lightbox" aria-hidden="true">
+      <button class="lightbox-backdrop" type="button" data-action="close-lightbox" aria-label="关闭预览"></button>
+      <div class="lightbox-dialog" role="dialog" aria-modal="true" aria-label="截图预览">
+        <button class="lightbox-close secondary small" type="button" data-action="close-lightbox">关闭</button>
+        <img id="lightbox-image" alt="截图放大预览" />
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="./src/ocr-core.js"></script>
+    <script src="./app.js"></script>
+  </body>
+  </html>
