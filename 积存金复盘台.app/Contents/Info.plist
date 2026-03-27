@@ -7,7 +7,7 @@
   <key>CFBundleExecutable</key>
   <string>start-in-iterm</string>
   <key>CFBundleIdentifier</key>
-  <string>local.gold-batch-calculator.launcher</string>
+  <string>local.gold-savings-review.launcher</string>
   <key>CFBundleName</key>
   <string>积存金复盘台</string>
   <key>CFBundlePackageType</key>

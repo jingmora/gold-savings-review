@@ -5,12 +5,50 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PROJECT_ROOT="$(cd "$APP_DIR/.." && pwd)"
-LAUNCHER_PATH="$PROJECT_ROOT/start.command"
 ITERM_APP="/Applications/iTerm.app"
+WEB_URL="http://127.0.0.1:4173"
+LAUNCH_COMMAND="cd $(printf '%q' "$PROJECT_ROOT") && GOLD_REVIEW_AUTO_CLOSE_WINDOW=1 npm run start"
+
+is_existing_app_running() {
+  local html
+  html="$(curl -fsS --max-time 1 "$WEB_URL/" 2>/dev/null)" || return 1
+  [[ "$html" == *"<title>积存金复盘台</title>"* ]]
+}
+
+if is_existing_app_running; then
+  open "$WEB_URL"
+  exit 0
+fi
 
 if [[ ! -d "$ITERM_APP" ]]; then
   osascript -e 'display dialog "未找到 /Applications/iTerm.app" buttons {"确定"} default button 1 with icon caution'
   exit 1
 fi
 
-open -a "$ITERM_APP" "$LAUNCHER_PATH"
+osascript <<OSA
+set wasRunning to application "iTerm" is running
+tell application "iTerm"
+  activate
+  if wasRunning then
+    set newWindow to (create window with default profile)
+    tell current session of newWindow
+      write text "$LAUNCH_COMMAND"
+    end tell
+  else
+    repeat 20 times
+      if (count of windows) > 0 then
+        exit repeat
+      end if
+      delay 0.1
+    end repeat
+
+    if (count of windows) = 0 then
+      create window with default profile
+    end if
+
+    tell current session of current window
+      write text "$LAUNCH_COMMAND"
+    end tell
+  end if
+end tell
+OSA

@@ -5,9 +5,11 @@ __pycache__/
 *.log
 .pytest_cache/
 node_modules/
+.runtime/
 
 # Private local data
 database/
 
-# Local docs
-docs/
+# Local agent/context files
+AGENTS.md
+docs/design-doc-mermaid-prompts.md
