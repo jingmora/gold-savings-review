@@ -135,6 +135,7 @@ export function createWorkspaceUiApi({
 
       [
         ["open", "打开"],
+        ["merge", "加入当前"],
         ["export", "导出"],
         ["rename", "重命名"],
         ["delete", "删除"],

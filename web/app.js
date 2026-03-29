@@ -74,6 +74,7 @@ const {
 
 const {
   createNewBatch,
+  mergeBatchIntoWorkspace,
   openBatchDatabase,
   openBatchIntoWorkspace,
   putBatch,
@@ -1286,6 +1287,7 @@ async function init() {
     clearImageSelection,
     closeImageLightbox,
     createNewBatch,
+    mergeBatchIntoWorkspace,
     deleteDetailRow,
     detailViewState,
     elements,

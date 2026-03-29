@@ -5,7 +5,7 @@ import {
   defaultBatchName,
   normalizeLegacyBatchName,
 } from "../lib/batch-utils.js";
-import { cloneRows } from "../lib/row-utils.js";
+import { cloneRows, createRowKey } from "../lib/row-utils.js";
 
 export function createHistoryApi({
   imageState,
@@ -216,6 +216,32 @@ export function createHistoryApi({
     }
   }
 
+  async function mergeBatchIntoWorkspace(id) {
+    const batch = await getBatchById(id);
+    if (!batch) {
+      setOcrStatus("未找到对应批次", "error");
+      return;
+    }
+
+    const existingKeys = new Set(getDisplayRows().map(createRowKey));
+    const rowsToAdd = cloneRows(batch.rows || []).filter((row) => !existingKeys.has(createRowKey(row)));
+
+    if (!rowsToAdd.length) {
+      setOcrStatus(`批次 ${batch.name} 没有新的可加入记录`);
+      return;
+    }
+
+    workspaceState.baseRows = [...workspaceState.baseRows, ...rowsToAdd];
+    workspaceState.dirty = true;
+    state.currentBatchId = null;
+    state.currentBatchName = "";
+    state.currentBatchCreatedAt = "";
+    state.currentBatchUpdatedAt = "";
+    update();
+    setHistoryDrawerOpen(false);
+    setOcrStatus(`已加入批次：${batch.name}，新增 ${rowsToAdd.length} 笔`);
+  }
+
   async function renameBatch(id) {
     const batch = await getBatchById(id);
     if (!batch) {
@@ -304,6 +330,7 @@ export function createHistoryApi({
     refreshBatchLibrary,
     saveCurrentBatch,
     openBatchIntoWorkspace,
+    mergeBatchIntoWorkspace,
     renameBatch,
     removeBatchFromLibrary,
     createNewBatch,

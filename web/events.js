@@ -14,6 +14,7 @@ export function bindAppEvents({
   imageState,
   importBatchData,
   isHistoryDrawerOpen,
+  mergeBatchIntoWorkspace,
   openBatchIntoWorkspace,
   openImageLightbox,
   recognizeSelectedImage,
@@ -279,6 +280,15 @@ export function bindAppEvents({
         await openBatchIntoWorkspace(batchId);
       } catch (error) {
         setOcrStatus(`打开失败：${error instanceof Error ? error.message : "未知错误"}`, "error");
+      }
+      return;
+    }
+
+    if (action === "merge-batch") {
+      try {
+        await mergeBatchIntoWorkspace(batchId);
+      } catch (error) {
+        setOcrStatus(`加入失败：${error instanceof Error ? error.message : "未知错误"}`, "error");
       }
       return;
     }
