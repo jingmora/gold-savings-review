@@ -21,6 +21,8 @@
   IndexedDB 历史批次库读写、打开批次、保存/更新当前批次。
 - `history/transfer.js`
   历史批次导入导出，复用 `src/history-transfer-tools.mjs` 的纯逻辑。
+- `market/live-price.js`
+  实时金价拉取与轮询。当前先使用 `Gold API` 作为公开参考价源，向结果总览提供实时买卖价；该价格用于本地“买入加点 / 卖出加点”换算，不等同于招行官方成交价。
 - `details.js`
   明细表渲染、排序、异常标记、行内编辑、删除。
 - `workspace.js`
@@ -49,6 +51,8 @@
   明细排序、重复检测、异常识别等纯逻辑。
 - `../src/history-transfer-tools.mjs`
   历史批次导入导出的纯逻辑，供浏览器模块和测试共用。
+- `../src/portfolio-metrics.mjs`
+  按移动平均成本法计算已实现收益、浮动收益和双收益率。
 
 ## 修改建议
 

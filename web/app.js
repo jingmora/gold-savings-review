@@ -9,6 +9,9 @@ import { createDetailsApi } from "./details.js";
 import { elements } from "./elements.js";
 import { bindAppEvents } from "./events.js";
 import {
+  createLivePriceApi,
+} from "./market/live-price.js";
+import {
   attachEphemeralHistoryLifecycle,
   cleanupLegacyBrowserStorage,
   prepareEphemeralHistorySession,
@@ -18,9 +21,10 @@ import { createBatchTransferApi } from "./history/transfer.js";
 import { createWorkspaceUiApi } from "./workspace.js";
 import { attachRuntimeSession } from "./runtime-session.js";
 import {
+  formatDateTimeWithSeconds,
   formatDay,
-  formatSignedCurrency,
   formatSignedPlainCompact,
+  formatUnitPrice,
   formatSignedWeight,
   toNumber,
 } from "./lib/formatters.js";
@@ -41,9 +45,14 @@ import {
 } from "./lib/ocr-utils.js";
 import { normalizeDirection } from "./lib/row-utils.js";
 import {
+  calculatePortfolioMetrics,
+  convertGramPriceToOuncePrice,
+} from "../src/portfolio-metrics.mjs";
+import {
   chartState,
   detailViewState,
   imageState,
+  marketState,
   ocrEngineState,
   state,
   workspaceState,
@@ -173,6 +182,7 @@ const {
   detailViewState,
   elements,
   getDisplayRows,
+  getLiveMarketSnapshot,
   getSaveBatchButtonLabel,
   getSuggestedBatchName,
   getTimeReviewRows,
@@ -181,6 +191,14 @@ const {
   renderDetailSortIndicators,
   state,
   workspaceState,
+});
+
+const {
+  startLivePricePolling,
+  stopLivePricePolling,
+} = createLivePriceApi({
+  marketState,
+  update,
 });
 
 function getSuggestedBatchName() {
@@ -222,6 +240,8 @@ function saveState() {
       detailSort: detailViewState.sort,
       detailViewMode: detailViewState.mode,
       detailOnlyAnomalies: detailViewState.onlyAnomalies,
+      marketBuySpread: marketState.buySpread,
+      marketSellSpread: marketState.sellSpread,
     })
   );
 }
@@ -240,12 +260,16 @@ function loadState() {
     detailViewState.sort = parsed.detailSort || "time-desc";
     detailViewState.mode = parsed.detailViewMode || "flat";
     detailViewState.onlyAnomalies = Boolean(parsed.detailOnlyAnomalies);
+    marketState.buySpread = Number.parseFloat(parsed.marketBuySpread) || 0;
+    marketState.sellSpread = Number.parseFloat(parsed.marketSellSpread) || 0;
   } catch {
     state.currentBatchId = null;
     state.currentBatchName = "";
     detailViewState.sort = "time-desc";
     detailViewState.mode = "flat";
     detailViewState.onlyAnomalies = false;
+    marketState.buySpread = 0;
+    marketState.sellSpread = 0;
   }
 }
 
@@ -339,6 +363,116 @@ function setRuntimeBridgeStatus({ connected, reason = "" } = {}) {
 
   elements.runtimeBridgeStatus.textContent = message;
   elements.runtimeBridgeStatus.classList.remove("is-hidden");
+}
+
+function formatUsdPerOunce(value) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return "--";
+  }
+
+  return `USD ${value.toFixed(2)}/oz`;
+}
+
+function getComexSessionState(now = new Date()) {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(now);
+  const weekday = parts.find((part) => part.type === "weekday")?.value || "";
+  const hour = Number(parts.find((part) => part.type === "hour")?.value || "0");
+  const minute = Number(parts.find((part) => part.type === "minute")?.value || "0");
+  const minutes = hour * 60 + minute;
+
+  if (weekday === "Sat") {
+    return "休市参考";
+  }
+  if (weekday === "Sun") {
+    return minutes >= 17 * 60 ? "交易中" : "休市参考";
+  }
+  if (weekday === "Fri") {
+    return minutes < 16 * 60 ? "交易中" : "休市参考";
+  }
+  if (weekday === "Mon" || weekday === "Tue" || weekday === "Wed" || weekday === "Thu") {
+    return minutes >= 16 * 60 && minutes < 17 * 60 ? "休市参考" : "交易中";
+  }
+
+  return "参考价";
+}
+
+function rebuildLiveQuoteWithSpreads() {
+  if (!marketState.quote) {
+    return;
+  }
+
+  const buyPriceCnyPerGram = marketState.quote.baseCnyPerGram + Number(marketState.buySpread || 0);
+  const sellPriceCnyPerGram = marketState.quote.baseCnyPerGram + Number(marketState.sellSpread || 0);
+  const exchangeRate = Number(marketState.quote.exchangeRate) || 0;
+
+  marketState.quote = {
+    ...marketState.quote,
+    buyPriceCnyPerGram,
+    sellPriceCnyPerGram,
+    buyPriceUsdPerOz:
+      exchangeRate > 0
+        ? convertGramPriceToOuncePrice(buyPriceCnyPerGram) / exchangeRate
+        : marketState.quote.baseUsdPerOz,
+    sellPriceUsdPerOz:
+      exchangeRate > 0
+        ? convertGramPriceToOuncePrice(sellPriceCnyPerGram) / exchangeRate
+        : marketState.quote.baseUsdPerOz,
+  };
+}
+
+function setLivePriceSpreads({ buySpread, sellSpread } = {}) {
+  marketState.buySpread = Number.parseFloat(buySpread) || 0;
+  marketState.sellSpread = Number.parseFloat(sellSpread) || 0;
+  rebuildLiveQuoteWithSpreads();
+  update();
+}
+
+function getLivePriceStatusText() {
+  if (marketState.status === "error") {
+    return marketState.error || "实时行情暂不可用";
+  }
+
+  if (!marketState.quote) {
+    return marketState.status === "loading" ? "行情加载中…" : "暂无实时行情";
+  }
+
+  const updatedAt = marketState.quote.updatedAt
+    ? formatDateTimeWithSeconds(marketState.quote.updatedAt)
+    : "";
+  const marketSessionState = getComexSessionState();
+
+  if (marketState.status === "refreshing") {
+    return updatedAt ? `${marketSessionState} · 更新于 ${updatedAt}` : `${marketSessionState} · 行情更新中…`;
+  }
+
+  return updatedAt ? `${marketSessionState} · 更新于 ${updatedAt}` : marketSessionState;
+}
+
+function getLiveMarketSnapshot() {
+  const quote = marketState.quote;
+  const portfolioMetrics = calculatePortfolioMetrics(getDisplayRows(), {
+    liveSellPrice: quote?.sellPriceCnyPerGram ?? 0,
+  });
+
+  return {
+    buyPriceCnyText: quote ? formatUnitPrice(quote.buyPriceCnyPerGram) : "--",
+    buyPriceUsdText: quote ? formatUsdPerOunce(quote.buyPriceUsdPerOz) : "--",
+    sellPriceCnyText: quote ? formatUnitPrice(quote.sellPriceCnyPerGram) : "--",
+    sellPriceUsdText: quote ? formatUsdPerOunce(quote.sellPriceUsdPerOz) : "--",
+    statusText: getLivePriceStatusText(),
+    statusTone: marketState.status === "error" ? "error" : "default",
+    realizedProfit: portfolioMetrics.realizedProfit,
+    floatingProfit: portfolioMetrics.floatingProfit,
+    holdingReturnRate: portfolioMetrics.holdingReturnRate,
+    totalReturnRate: portfolioMetrics.totalReturnRate,
+  };
 }
 
 function findNearestTime(lines, index) {
@@ -1305,6 +1439,7 @@ async function init() {
     sanitizeInlineEditInput,
     saveCurrentBatch,
     saveEditedDetailRow,
+    setLivePriceSpreads,
     setEditingRow,
     setDropzoneActive,
     setHistoryDrawerOpen,
@@ -1315,6 +1450,10 @@ async function init() {
     workspaceState,
   });
 
+  elements.buySpreadInput.value = String(marketState.buySpread);
+  elements.sellSpreadInput.value = String(marketState.sellSpread);
+  startLivePricePolling();
+  window.addEventListener("beforeunload", stopLivePricePolling, { once: true });
   update();
 
   if (legacyCleanup.databases.length || legacyCleanup.localKeys.length) {

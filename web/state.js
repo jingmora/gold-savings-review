@@ -27,6 +27,15 @@ export const ocrEngineState = {
   mode: "",
 };
 
+export const marketState = {
+  status: "idle",
+  quote: null,
+  error: "",
+  refreshTimerId: null,
+  buySpread: 0,
+  sellSpread: 0,
+};
+
 export const detailViewState = {
   sort: "time-desc",
   mode: "flat",

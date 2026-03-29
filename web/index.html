@@ -186,6 +186,65 @@
           </article>
         </div>
 
+        <div class="appendix-block summary-insight-block">
+          <div class="appendix-head summary-insight-head">
+            <div>
+              <h3>实时市价与收益测算</h3>
+              <p class="summary-insight-status" id="live-price-status">行情加载中…</p>
+            </div>
+            <div class="summary-insight-tools" aria-label="本地价差设置">
+              <label class="summary-insight-field">
+                <span>买入加点(元/g)</span>
+                <input id="buy-spread-input" type="number" step="0.01" inputmode="decimal" value="0" />
+              </label>
+              <label class="summary-insight-field">
+                <span>卖出加点(元/g)</span>
+                <input id="sell-spread-input" type="number" step="0.01" inputmode="decimal" value="0" />
+              </label>
+            </div>
+          </div>
+
+          <div class="summary-insight-price-grid">
+            <article class="summary-mini-card summary-insight-metric">
+              <span>实时买入价</span>
+              <strong id="live-buy-price-cny">--</strong>
+              <em id="live-buy-price-usd">--</em>
+            </article>
+
+            <article class="summary-mini-card summary-insight-metric">
+              <span>实时卖出价</span>
+              <strong id="live-sell-price-cny">--</strong>
+              <em id="live-sell-price-usd">--</em>
+            </article>
+          </div>
+
+          <div class="summary-insight-metric-grid">
+            <article class="summary-mini-card summary-insight-metric">
+              <span>浮动收益</span>
+              <strong id="floating-profit">--</strong>
+              <em>按实时卖出价估算的持仓损益</em>
+            </article>
+
+            <article class="summary-mini-card summary-insight-metric">
+              <span>持仓收益率</span>
+              <strong id="holding-return-rate">--</strong>
+              <em>浮动损益 ÷ 持仓成本</em>
+            </article>
+
+            <article class="summary-mini-card summary-insight-metric">
+              <span>已实现收益</span>
+              <strong id="realized-profit">--</strong>
+              <em>已平仓部分累计实现损益</em>
+            </article>
+
+            <article class="summary-mini-card summary-insight-metric">
+              <span>总收益率</span>
+              <strong id="total-return-rate">--</strong>
+              <em>总损益 ÷ 累计买入成本</em>
+            </article>
+          </div>
+        </div>
+
         <div class="analysis-block">
           <div class="appendix-head">
             <div>

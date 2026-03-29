@@ -24,6 +24,7 @@ export function bindAppEvents({
   sanitizeInlineEditInput,
   saveCurrentBatch,
   saveEditedDetailRow,
+  setLivePriceSpreads,
   setEditingRow,
   setDropzoneActive,
   setHistoryDrawerOpen,
@@ -253,6 +254,16 @@ export function bindAppEvents({
       setOcrStatus(`导入失败：${error instanceof Error ? error.message : "未知错误"}`, "error");
     }
   });
+
+  function commitLivePriceSpreads() {
+    setLivePriceSpreads({
+      buySpread: elements.buySpreadInput.value,
+      sellSpread: elements.sellSpreadInput.value,
+    });
+  }
+
+  elements.buySpreadInput.addEventListener("input", commitLivePriceSpreads);
+  elements.sellSpreadInput.addEventListener("input", commitLivePriceSpreads);
 
   elements.batchLibrary.addEventListener("click", async (event) => {
     const target = event.target.closest("button[data-batch-id]");

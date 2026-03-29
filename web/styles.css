@@ -938,6 +938,127 @@ textarea {
   gap: 18px;
 }
 
+.summary-insight-head {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.summary-insight-head > div:first-child {
+  min-width: 0;
+}
+
+.summary-insight-status {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: var(--type-note);
+  line-height: 1.5;
+}
+
+.summary-insight-tools {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.summary-insight-field {
+  display: grid;
+  gap: 6px;
+  min-width: 144px;
+}
+
+.summary-insight-field span {
+  color: var(--muted);
+  font-size: var(--type-label);
+  line-height: 1.4;
+}
+
+.summary-insight-field input {
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-insight-status.is-error {
+  color: #b45309;
+}
+
+.summary-insight-price-grid,
+.summary-insight-metric-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.summary-insight-price-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.summary-insight-metric-grid {
+  margin-top: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.summary-insight-price-grid .summary-insight-metric strong {
+  font-size: 1.48rem;
+}
+
+.summary-insight-price-grid .summary-insight-metric em {
+  font-size: 0.9rem;
+}
+
+.summary-insight-metric-grid .summary-insight-metric strong {
+  font-size: 1.18rem;
+}
+
+.summary-insight-metric-grid .summary-insight-metric em {
+  max-width: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summary-insight-metric {
+  min-height: 124px;
+}
+
+.summary-insight-metric span,
+.summary-insight-metric em {
+  display: block;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  font-style: normal;
+}
+
+.summary-insight-metric span {
+  margin-bottom: 8px;
+}
+
+.summary-insight-metric strong {
+  display: block;
+  font-size: 1.28rem;
+  font-family: var(--font-ui);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.summary-insight-metric em {
+  margin-top: 6px;
+}
+
+.summary-insight-metric strong.is-positive {
+  color: #047857;
+}
+
+.summary-insight-metric strong.is-negative {
+  color: #b45309;
+}
+
 .summary-group-card {
   padding: 20px 20px 18px;
   border-radius: 20px;
@@ -1019,10 +1140,10 @@ textarea {
 
 .chart-head h4 {
   margin: 0;
-  font-size: 1.04rem;
-  font-weight: 600;
-  color: #1f2937;
-  letter-spacing: -0.02em;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #475569;
+  letter-spacing: 0.01em;
 }
 
 .chart-head p {
@@ -1633,9 +1754,19 @@ th {
   }
 
   .summary-grid,
+  .summary-insight-price-grid,
+  .summary-insight-metric-grid,
   .queue-metrics,
   .chart-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .summary-insight-head {
+    flex-direction: column;
+  }
+
+  .summary-insight-tools {
+    justify-content: flex-start;
   }
 
   .summary-group-meta {
@@ -1732,9 +1863,16 @@ th {
   }
 
   .summary-grid,
+  .summary-insight-price-grid,
+  .summary-insight-metric-grid,
   .queue-metrics,
   .chart-grid {
     grid-template-columns: 1fr;
+  }
+
+  .summary-insight-field {
+    min-width: 0;
+    width: 100%;
   }
 
   .history-panel {
