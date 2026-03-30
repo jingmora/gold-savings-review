@@ -207,8 +207,14 @@ export function createBatchTransferApi({
     }
     setOcrStatus(`已导出 ${workspaceState.batches.length} 个历史批次`);
   }
-  async function importBatchData(file) {
-    if (!file) {
+  async function importBatchData(files) {
+    const normalizedFiles = Array.isArray(files)
+      ? files.filter(Boolean)
+      : files
+        ? [files]
+        : [];
+
+    if (!normalizedFiles.length) {
       return;
     }
 
@@ -217,34 +223,66 @@ export function createBatchTransferApi({
       return;
     }
 
-    const rawText = await file.text();
-    let parsed;
+    let importedBatchCount = 0;
+    let successFileCount = 0;
+    const failedFiles = [];
 
-    try {
-      parsed = JSON.parse(rawText);
-    } catch {
-      setOcrStatus("批次数据不是有效的 JSON 文件", "error");
-      return;
+    for (const file of normalizedFiles) {
+      let rawText = "";
+      let parsed;
+      let records;
+
+      try {
+        rawText = await file.text();
+        parsed = JSON.parse(rawText);
+      } catch {
+        failedFiles.push(`${file.name}：不是有效的 JSON 文件`);
+        continue;
+      }
+
+      try {
+        records = parseImportedBatchPayload(parsed);
+      } catch (error) {
+        failedFiles.push(`${file.name}：${error instanceof Error ? error.message : "JSON 文件格式不正确"}`);
+        continue;
+      }
+
+      if (!records.length) {
+        failedFiles.push(`${file.name}：没有可导入的批次`);
+        continue;
+      }
+
+      for (const record of records) {
+        await putBatch(
+          toPortableBatchRecord(record, {
+            buildBatchSummary,
+            buildDailySummaryFromRows,
+          })
+        );
+      }
+
+      importedBatchCount += records.length;
+      successFileCount += 1;
     }
 
-    const records = parseImportedBatchPayload(parsed);
-    if (!records.length) {
-      setOcrStatus("JSON 文件中没有可导入的批次", "error");
-      return;
-    }
-
-    for (const record of records) {
-      await putBatch(
-        toPortableBatchRecord(record, {
-          buildBatchSummary,
-          buildDailySummaryFromRows,
-        })
+    if (!importedBatchCount) {
+      setOcrStatus(
+        failedFiles.length ? `导入失败：${failedFiles.slice(0, 2).join("；")}` : "没有可导入的批次",
+        "error"
       );
+      return;
     }
 
     await refreshBatchLibrary();
     update();
-    setOcrStatus(`已导入 ${records.length} 个历史批次`);
+
+    const summary = `已导入 ${importedBatchCount} 个历史批次（${successFileCount} 个文件）`;
+    if (!failedFiles.length) {
+      setOcrStatus(summary);
+      return;
+    }
+
+    setOcrStatus(`${summary}；${failedFiles.length} 个文件失败：${failedFiles.slice(0, 2).join("；")}`);
   }
 
   return {

@@ -9,16 +9,38 @@
   <body>
     <main class="page">
       <section class="hero">
-        <div class="hero-bar">
-          <div class="hero-copy">
-            <p class="eyebrow">交易复盘工作台</p>
-            <h1>积存金复盘台</h1>
-            <p class="subtitle">
-              把交易截图整理成可复盘、可入库、可继续追踪的结果
-            </p>
+        <div class="hero-surface">
+          <div class="hero-bar">
+            <div class="hero-copy">
+              <p class="eyebrow">交易复盘工作台</p>
+              <h1>积存金复盘台</h1>
+              <p class="subtitle">
+                把交易截图整理成可复盘、可入库、可继续追踪的结果
+              </p>
+              <p class="hero-note">
+                主路径：导入截图，核对明细，查看收益与分析，再主动保存到历史库
+              </p>
+            </div>
+            <div class="hero-tools">
+              <button id="open-history" type="button" class="secondary">历史库</button>
+            </div>
           </div>
-          <div class="hero-tools">
-            <button id="open-history" type="button" class="secondary">历史库</button>
+          <div class="hero-workflow" aria-label="工作方式">
+            <article class="hero-step">
+              <span>01</span>
+              <strong>导入与识别</strong>
+              <p>截图先进入当前工作区，不直接写入历史库</p>
+            </article>
+            <article class="hero-step">
+              <span>02</span>
+              <strong>核对与修正</strong>
+              <p>优先处理异常记录，再决定是否继续整理</p>
+            </article>
+            <article class="hero-step">
+              <span>03</span>
+              <strong>收益与归档</strong>
+              <p>结合实时参考价看收益，再保存或更新批次</p>
+            </article>
           </div>
         </div>
         <div class="runtime-banner is-hidden" id="runtime-bridge-status" aria-live="polite"></div>
@@ -26,9 +48,12 @@
 
       <section class="panel upload-panel">
         <div class="section-head">
-          <div>
-            <p class="section-tag">01</p>
-            <h2>导入截图</h2>
+          <div class="section-title-block">
+            <div class="section-title-row">
+              <p class="section-tag">01</p>
+              <h2>导入截图</h2>
+            </div>
+            <p class="hint">截图会先进入队列，识别成功后仍需你确认，才会纳入后续复盘</p>
           </div>
         </div>
 
@@ -65,6 +90,7 @@
             <div class="card-head">
               <div>
                 <h3>截图队列</h3>
+                <p class="hint">优先处理未完成识别或结果异常的截图</p>
               </div>
             </div>
             <div class="image-preview is-empty" id="image-preview">暂无截图</div>
@@ -74,11 +100,15 @@
 
       <section class="panel details-panel">
         <div class="section-head">
-          <div>
-            <p class="section-tag">02</p>
-            <h2>成交明细</h2>
+          <div class="section-title-block">
+            <div class="section-title-row">
+              <p class="section-tag">02</p>
+              <h2>成交明细</h2>
+            </div>
+            <p class="hint">按时间、克重和单价核对识别结果，确认后再进入保存动作</p>
           </div>
           <div class="detail-toolbar">
+            <button id="detail-clear-loaded" type="button" class="secondary small">清空已载入</button>
             <label class="detail-filter-toggle">
               <input id="detail-only-anomalies" type="checkbox" />
               <span>只看异常</span>
@@ -139,58 +169,24 @@
 
       <section class="panel results">
         <div class="section-head">
-          <div>
-            <p class="section-tag">03</p>
-            <h2>结果总览</h2>
+          <div class="section-title-block">
+            <div class="section-title-row">
+              <p class="section-tag">03</p>
+              <h2>结果总览</h2>
+            </div>
+            <p class="hint">先看收益与执行情况，再决定保存、更新当前批次，或继续整理</p>
           </div>
           <div class="results-meta">
             <button id="save-batch" type="button">保存为批次</button>
           </div>
         </div>
 
-        <div class="summary-grid">
-          <article class="summary-group-card">
-            <p class="summary-card-title">委托买入概览</p>
-            <div class="summary-group-main">
-              <span>成交均价</span>
-              <strong id="summary-buy-avg">¥0.00/g</strong>
-            </div>
-            <div class="summary-group-meta">
-              <article class="summary-mini-card">
-                <span>成交克重</span>
-                <strong id="summary-buy-weight">0.000 g</strong>
-              </article>
-              <article class="summary-mini-card">
-                <span>成交金额</span>
-                <strong id="summary-buy-amount">¥0.00</strong>
-              </article>
-            </div>
-          </article>
-
-          <article class="summary-group-card">
-            <p class="summary-card-title">委托卖出概览</p>
-            <div class="summary-group-main">
-              <span>成交均价</span>
-              <strong id="summary-sell-avg">¥0.00/g</strong>
-            </div>
-            <div class="summary-group-meta">
-              <article class="summary-mini-card">
-                <span>成交克重</span>
-                <strong id="summary-sell-weight">0.000 g</strong>
-              </article>
-              <article class="summary-mini-card">
-                <span>成交金额</span>
-                <strong id="summary-sell-amount">¥0.00</strong>
-              </article>
-            </div>
-          </article>
-        </div>
-
-        <div class="appendix-block summary-insight-block">
+        <div class="summary-insight-block">
           <div class="appendix-head summary-insight-head">
             <div>
               <h3>实时市价与收益测算</h3>
               <p class="summary-insight-status" id="live-price-status">行情加载中…</p>
+              <p class="summary-insight-copy">公开参考价结合本地加点设置，只用于收益估算，不等同于招行最终成交价</p>
             </div>
             <div class="summary-insight-tools" aria-label="本地价差设置">
               <label class="summary-insight-field">
@@ -245,11 +241,59 @@
           </div>
         </div>
 
+        <div class="appendix-block trade-overview-block">
+          <div class="appendix-head">
+            <div>
+              <h3>买卖执行概览</h3>
+            </div>
+            <p class="hint">按当前整理台中的成交记录汇总平均价、成交克重和累计金额</p>
+          </div>
+
+          <div class="summary-grid">
+            <article class="summary-group-card">
+              <p class="summary-card-title">委托买入</p>
+              <div class="summary-group-main">
+                <span>成交均价</span>
+                <strong id="summary-buy-avg">¥0.00/g</strong>
+              </div>
+              <div class="summary-group-meta">
+                <article class="summary-mini-card">
+                  <span>成交克重</span>
+                  <strong id="summary-buy-weight">0.000 g</strong>
+                </article>
+                <article class="summary-mini-card">
+                  <span>成交金额</span>
+                  <strong id="summary-buy-amount">¥0.00</strong>
+                </article>
+              </div>
+            </article>
+
+            <article class="summary-group-card">
+              <p class="summary-card-title">委托卖出</p>
+              <div class="summary-group-main">
+                <span>成交均价</span>
+                <strong id="summary-sell-avg">¥0.00/g</strong>
+              </div>
+              <div class="summary-group-meta">
+                <article class="summary-mini-card">
+                  <span>成交克重</span>
+                  <strong id="summary-sell-weight">0.000 g</strong>
+                </article>
+                <article class="summary-mini-card">
+                  <span>成交金额</span>
+                  <strong id="summary-sell-amount">¥0.00</strong>
+                </article>
+              </div>
+            </article>
+          </div>
+        </div>
+
         <div class="analysis-block">
           <div class="appendix-head">
             <div>
               <h3>成交数据分析</h3>
             </div>
+            <p class="hint">用日度买卖克重、均价和价格带分布，回看这批交易的执行节奏</p>
           </div>
 
           <div class="chart-grid">
@@ -295,34 +339,11 @@
           </div>
         </div>
 
-        <div class="appendix-block">
-          <div class="appendix-head">
-            <div>
-              <h3>按成交日期复盘</h3>
-            </div>
-            <p class="hint">按成交日期查看委托买卖与净增持克重</p>
-          </div>
-
-          <div class="table-wrap appendix-table-wrap">
-            <table class="review-table">
-              <thead>
-                <tr>
-                  <th>成交日期</th>
-                  <th>委托买入克重(g)</th>
-                  <th>委托卖出克重(g)</th>
-                  <th>净增持克重(g)</th>
-                </tr>
-              </thead>
-              <tbody id="review-sheet-body"></tbody>
-              <tfoot id="review-sheet-foot"></tfoot>
-            </table>
-          </div>
-        </div>
       </section>
 
     </main>
 
-    <input id="import-batch-file" type="file" accept="application/json,.json" hidden />
+    <input id="import-batch-file" type="file" accept="application/json,.json" multiple hidden />
 
     <div class="history-drawer is-hidden" id="history-drawer" aria-hidden="true">
       <button class="history-backdrop" type="button" data-action="close-history" aria-label="关闭历史库"></button>
@@ -364,6 +385,9 @@
             <div class="card-head">
               <div>
                 <h3>历史批次</h3>
+              </div>
+              <div class="history-panel-actions">
+                <button id="merge-all-batches" type="button" class="secondary small">全部加入当前</button>
               </div>
             </div>
             <div class="batch-library is-empty" id="batch-library">暂无历史批次</div>
