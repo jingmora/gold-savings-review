@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "积存金收益看板",
+  "version": "0.1.0",
+  "identifier": "com.jing.goldsavingsreview.watchpanel",
+  "build": {
+    "frontendDist": "../ui"
+  },
+  "app": {
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app"],
+    "category": "Productivity",
+    "shortDescription": "监听本地批次 JSON 并在菜单栏面板中展示积存金收益。",
+    "macOS": {
+      "minimumSystemVersion": "13.0"
+    }
+  }
+}

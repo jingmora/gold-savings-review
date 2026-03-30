@@ -1,0 +1,15 @@
+{
+  "name": "gold-savings-review-desktop",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "env -u CC -u CXX -u CFLAGS -u CXXFLAGS PATH=\"/opt/homebrew/bin:/opt/homebrew/opt/rustup/bin:$PATH\" tauri dev",
+    "build": "env -u CC -u CXX -u CFLAGS -u CXXFLAGS PATH=\"/opt/homebrew/bin:/opt/homebrew/opt/rustup/bin:$PATH\" tauri build"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}

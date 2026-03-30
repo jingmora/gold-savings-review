@@ -1,0 +1,248 @@
+:root {
+  color-scheme: light;
+  --bg-top: #1d1308;
+  --bg-bottom: #efe2c1;
+  --panel: rgba(254, 249, 239, 0.86);
+  --panel-strong: rgba(255, 252, 245, 0.96);
+  --line: rgba(98, 62, 20, 0.16);
+  --text: #2f2114;
+  --muted: #755b43;
+  --positive: #0d8f67;
+  --negative: #b54838;
+  --shadow: 0 18px 48px rgba(31, 20, 8, 0.22);
+  --radius: 22px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top right, rgba(255, 224, 145, 0.42), transparent 34%),
+    linear-gradient(180deg, var(--bg-top) 0%, #5a3a18 24%, var(--bg-bottom) 100%);
+}
+
+body {
+  padding: 14px;
+}
+
+body.is-compact .setting-copy,
+body.is-compact #detail-metrics,
+body.is-compact #issue-card {
+  display: none;
+}
+
+.panel-shell {
+  display: grid;
+  gap: 12px;
+}
+
+.hero-card,
+.setting-card,
+.metric-card,
+.alert-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+}
+
+.hero-card,
+.setting-card,
+.alert-card {
+  padding: 16px 16px 14px;
+}
+
+.hero-head,
+.setting-head,
+.alert-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.status-copy,
+.path-copy,
+.setting-copy,
+.tiny-copy {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.status-copy {
+  font-size: 13px;
+}
+
+.path-copy {
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.metric-band,
+.metric-grid,
+.field-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.metric-band,
+.field-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric-card {
+  padding: 16px;
+}
+
+.metric-card.highlight {
+  background: var(--panel-strong);
+}
+
+.metric-card span,
+.field span,
+.setting-title,
+.alert-head p {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.setting-title,
+.alert-head p {
+  margin: 0;
+}
+
+.metric-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 26px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.metric-card em {
+  display: block;
+  margin-top: 8px;
+  font-style: normal;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.metric-card strong.is-positive,
+.metric-card em.is-positive {
+  color: var(--positive);
+}
+
+.metric-card strong.is-negative,
+.metric-card em.is-negative {
+  color: var(--negative);
+}
+
+.ghost-button {
+  border: 1px solid rgba(98, 62, 20, 0.18);
+  background: rgba(255, 252, 245, 0.75);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 140ms ease, background-color 140ms ease;
+}
+
+.ghost-button:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field input {
+  width: 100%;
+  border: 1px solid rgba(98, 62, 20, 0.16);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--text);
+  font: inherit;
+}
+
+.issue-list {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.issue-list li {
+  border-radius: 14px;
+  background: rgba(255, 244, 228, 0.92);
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.issue-list strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 520px) {
+  body {
+    padding: 12px;
+  }
+
+  .metric-band,
+  .metric-grid,
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-head,
+  .setting-head,
+  .alert-head {
+    flex-direction: column;
+  }
+
+  .hero-actions {
+    width: 100%;
+  }
+
+  .ghost-button {
+    flex: 1;
+  }
+}
