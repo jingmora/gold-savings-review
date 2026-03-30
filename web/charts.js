@@ -10,13 +10,12 @@ export function createChartsApi({
   buildPriceDistribution,
   getDisplayRows,
 }) {
-  function getChartCanvasEntries() {
-    return [
-      ["amount", elements.chartAmount],
-      ["average", elements.chartAverage],
-      ["weight", elements.chartWeight],
-      ["distribution", elements.chartDistribution],
-    ];
+  let lastRowsSignature = null;
+
+  function buildRowsSignature(rows) {
+    return (rows || [])
+      .map((row) => [row.time || "", row.direction || "", row.weight || "", row.price || ""].join("|"))
+      .join("\n");
   }
 
   function destroyChart(key) {
@@ -188,6 +187,12 @@ export function createChartsApi({
 
   function renderCharts() {
     const rows = getDisplayRows();
+    const nextSignature = buildRowsSignature(rows);
+    if (nextSignature === lastRowsSignature) {
+      return;
+    }
+
+    lastRowsSignature = nextSignature;
     const dailyRows = buildDailySummaryFromRows(rows);
     const distributionRows = buildPriceDistribution(rows);
     const options = buildChartOptions();
@@ -409,8 +414,6 @@ export function createChartsApi({
   }
 
   return {
-    destroyChart,
-    getChartCanvasEntries,
     renderCharts,
   };
 }
