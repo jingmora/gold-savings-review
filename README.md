@@ -135,7 +135,7 @@ npm run stop
 
 ### macOS 启动器
 
-双击 [积存金复盘台.app](/Users/jing/Documents/Code/gold-savings-review/积存金复盘台.app)。
+双击 [积存金复盘台.app](积存金复盘台.app)。
 
 适用前提：
 
@@ -409,15 +409,33 @@ npm run ocr:serve
 
 ## 仓库结构
 
-- [web/](/Users/jing/Documents/Code/gold-savings-review/web)：前端页面、状态管理、批次库、图表、导入导出和事件绑定
-- [src/](/Users/jing/Documents/Code/gold-savings-review/src)：共享解析器和纯逻辑工具
-- [python/](/Users/jing/Documents/Code/gold-savings-review/python)：本地 OCR 服务与依赖
-- [scripts/](/Users/jing/Documents/Code/gold-savings-review/scripts)：启动、状态查询和停止脚本
-- [tests/](/Users/jing/Documents/Code/gold-savings-review/tests)：前端与 Python 回归测试
+- [database/](database)：本地样例数据目录；其中 [batch-records/](database/batch-records) 用于存放批次 JSON
+- [web/](web)：前端页面、状态管理、批次库、图表、导入导出和事件绑定
+- [src/](src)：共享解析器和纯逻辑工具
+- [python/](python)：本地 OCR 服务与依赖
+- [scripts/](scripts)：启动、状态查询和停止脚本
+- [tests/](tests)：前端与 Python 回归测试
 
 ## 实现说明
 
 如果你关心的是开发实现而不是安装使用，建议优先阅读：
 
-- [web/README.md](/Users/jing/Documents/Code/gold-savings-review/web/README.md)
-- [AGENTS.md](/Users/jing/Documents/Code/gold-savings-review/AGENTS.md)
+- [web/README.md](web/README.md)
+- [docs/desktop-watch-panel-plan.md](docs/desktop-watch-panel-plan.md)
+- [AGENTS.md](AGENTS.md)
+
+## 桌面端扩展 TODO
+
+如果后续要做桌面端收益看板，可以按下面顺序推进：
+
+- 当前本地样例批次 JSON 可放在 [database/batch-records](database/batch-records)，后续桌面端可直接监听该目录中的指定文件
+- [ ] 支持指定本地 JSON 文件路径并自动监听文件变更
+- [ ] 记住最近一次打开的 JSON 文件路径
+- [ ] 提供独立桌面小窗口，显示关键指标
+- [ ] 支持窗口置顶、缩放和紧凑模式
+- [ ] 增加“交易中 / 休市参考”状态提示
+- [ ] 支持买入加点 / 卖出加点的桌面端本地配置
+- [ ] 支持多批次切换或选择指定批次
+- [ ] 支持文件异常、JSON 结构异常、数据缺失时的桌面提示
+- [ ] 增加红涨绿跌或正负收益视觉提示
+- [ ] 评估是否切换为更稳定的商业金价数据源

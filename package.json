@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "start": "node scripts/start-local.mjs",
+    "desktop:dev": "npm --prefix desktop-tauri run dev",
+    "desktop:build": "npm --prefix desktop-tauri run build",
     "status": "node scripts/status-local.mjs",
     "stop": "node scripts/stop-local.mjs",
     "check": "node --check web/app.js",

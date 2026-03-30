@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>积存金收益看板</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="panel-shell">
+      <section class="hero-card">
+        <div class="hero-head">
+          <div>
+            <p class="eyebrow">Tauri 菜单栏看板</p>
+            <h1>积存金收益看板</h1>
+          </div>
+          <div class="hero-actions">
+            <button id="refresh-button" type="button" class="ghost-button">立即刷新</button>
+            <button id="compact-toggle" type="button" class="ghost-button">紧凑模式</button>
+          </div>
+        </div>
+        <p id="source-status" class="status-copy">正在连接本地批次目录…</p>
+        <p id="source-path" class="path-copy">--</p>
+      </section>
+
+      <section class="metric-band">
+        <article class="metric-card highlight">
+          <span>实时卖出价</span>
+          <strong id="live-sell-price">--</strong>
+          <em id="live-sell-price-usd">--</em>
+        </article>
+        <article class="metric-card">
+          <span>浮动收益</span>
+          <strong id="floating-profit">--</strong>
+          <em id="holding-return-rate">--</em>
+        </article>
+      </section>
+
+      <section class="setting-card">
+        <div class="setting-head">
+          <div>
+            <p class="setting-title">本地加点</p>
+            <p class="setting-copy">继续沿用网页端“买入加点 / 卖出加点”的口径。</p>
+          </div>
+          <p id="market-status" class="tiny-copy">行情加载中…</p>
+        </div>
+        <div class="field-grid">
+          <label class="field">
+            <span>买入加点</span>
+            <input id="buy-spread-input" type="number" step="0.01" value="0" />
+          </label>
+          <label class="field">
+            <span>卖出加点</span>
+            <input id="sell-spread-input" type="number" step="0.01" value="0" />
+          </label>
+        </div>
+      </section>
+
+      <section class="metric-grid" id="detail-metrics">
+        <article class="metric-card">
+          <span>已实现收益</span>
+          <strong id="realized-profit">--</strong>
+          <em id="total-return-rate">--</em>
+        </article>
+        <article class="metric-card">
+          <span>当前持仓</span>
+          <strong id="current-weight">--</strong>
+          <em id="current-cost">--</em>
+        </article>
+        <article class="metric-card">
+          <span>批次概览</span>
+          <strong id="batch-summary">--</strong>
+          <em id="row-summary">--</em>
+        </article>
+        <article class="metric-card">
+          <span>最近数据时间</span>
+          <strong id="last-batch-updated-at">--</strong>
+          <em id="last-quote-updated-at">--</em>
+        </article>
+      </section>
+
+      <section class="alert-card" id="issue-card">
+        <div class="alert-head">
+          <p>异常提示</p>
+          <span id="issue-count">0</span>
+        </div>
+        <ul id="issue-list" class="issue-list"></ul>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
